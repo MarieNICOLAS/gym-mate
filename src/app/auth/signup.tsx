@@ -1,4 +1,6 @@
 import { Link } from "expo-router";
+import { FirebaseError } from "firebase/app";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -10,14 +12,19 @@ import {
 } from "react-native";
 import { palette } from "../../constants/palette";
 import { styles } from "../../styles/common";
+import { auth } from "../../services/firebase";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [accountCreated, setAccountCreated] = useState(false);
 
-  function handleSignup() {
+  async function handleSignup() {
+    if (loading || accountCreated) return;
+
     if (!name.trim() || !email.trim() || !password.trim()) {
       setMessage("Remplis tous les champs.");
       return;
@@ -33,9 +40,42 @@ export default function SignupPage() {
       return;
     }
 
-    setMessage(
-      "Formulaire valide ! L’enregistrement du compte viendra plus tard.",
-    );
+    setLoading(true);
+    setMessage("");
+
+    try {
+      // Firebase crée le compte et connecte automatiquement cet utilisateur.
+      const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      setAccountCreated(true);
+      setPassword("");
+
+      try {
+        // Le prénom est enregistré dans Authentication, pas encore dans Firestore.
+        await updateProfile(result.user, { displayName: name.trim() });
+        setMessage("Compte créé ! Tu es maintenant connecté à Firebase.");
+      } catch {
+        // Le compte existe même si l'enregistrement du prénom échoue.
+        setMessage("Ton compte est créé et connecté, mais le prénom n’a pas pu être enregistré. Ne recrée pas le compte.");
+      }
+    } catch (error) {
+      const code = error instanceof FirebaseError ? error.code : "";
+
+      if (code === "auth/email-already-in-use") {
+        setMessage("Cette adresse e-mail est déjà utilisée. Utilise la page Connexion.");
+      } else if (code === "auth/invalid-email") {
+        setMessage("Saisis une adresse e-mail valide.");
+      } else if (code === "auth/weak-password" || code === "auth/password-does-not-meet-requirements") {
+        setMessage("Ce mot de passe est trop faible. Choisis-en un plus long avec des majuscules, minuscules, chiffres et caractères spéciaux.");
+      } else if (code === "auth/network-request-failed") {
+        setMessage("Inscription impossible. Vérifie ta connexion Internet.");
+      } else if (code === "auth/too-many-requests") {
+        setMessage("Trop de tentatives. Patiente avant de réessayer.");
+      } else {
+        setMessage("Inscription impossible. Code : " + (code || "erreur inconnue"));
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -54,6 +94,7 @@ export default function SignupPage() {
           accessibilityLabel="Prénom"
           style={styles.input}
           value={name}
+          editable={!loading && !accountCreated}
           onChangeText={setName}
           autoCapitalize="words"
         />
@@ -65,6 +106,7 @@ export default function SignupPage() {
           placeholder="exemple@email.fr"
           placeholderTextColor={palette.muted}
           value={email}
+          editable={!loading && !accountCreated}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
@@ -78,6 +120,7 @@ export default function SignupPage() {
           placeholder="8 caractères minimum"
           placeholderTextColor={palette.muted}
           value={password}
+          editable={!loading && !accountCreated}
           onChangeText={setPassword}
           secureTextEntry
           autoCapitalize="none"
@@ -87,8 +130,12 @@ export default function SignupPage() {
           accessibilityRole="button"
           style={styles.button}
           onPress={handleSignup}
+          disabled={loading || accountCreated}
+          accessibilityState={{ disabled: loading || accountCreated, busy: loading }}
         >
-          <Text style={styles.buttonText}>S’inscrire</Text>
+          <Text style={styles.buttonText}>
+            {loading ? "Inscription en cours…" : accountCreated ? "Compte créé" : "S’inscrire"}
+          </Text>
         </Pressable>
 
         {message !== "" && (

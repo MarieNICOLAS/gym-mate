@@ -25,6 +25,24 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Firebase
+
+Firebase and AsyncStorage are already declared in the project dependencies.
+The Firebase project settings are exported from `src/firebase/config.js`.
+Import `auth` and `db` from `src/services/firebase.ts` in application services;
+do not initialize Firebase again in screens.
+
+Authentication uses AsyncStorage persistence on Android and iOS, and Firebase's
+default browser persistence on web. `src/types/firebase-auth.d.ts` declares the
+React Native persistence export missing from Firebase's public TypeScript types.
+Analytics is not initialized because the Firebase JS SDK does not support it on
+React Native.
+
+In the Firebase console, enable the required Authentication sign-in providers,
+create the Cloud Firestore database, and configure its access rules before using
+these services. Initialization alone does not verify database access. After
+implementing sign-in, close and reopen the mobile app to verify session restoration.
+
 ## Get a fresh project
 
 When you're ready, run:

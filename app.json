@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "molidays-mobile",
-    "slug": "molidays-mobile",
+    "name": "gym-mate",
+    "slug": "gym-mate",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "molidaysmobile",
+    "scheme": "gym-mate",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
