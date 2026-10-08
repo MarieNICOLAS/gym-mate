@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import { palette } from '../constants/palette';
+import { StyleSheet } from "react-native";
+import { palette } from "../constants/palette";
 
 // Quelques styles communs pour garder les mêmes couleurs et espacements.
 export const styles = StyleSheet.create({
@@ -10,13 +10,13 @@ export const styles = StyleSheet.create({
   content: {
     padding: 24,
     gap: 16,
-    width: '100%',
+    width: "100%",
     maxWidth: 440,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   title: {
     fontSize: 30,
-    fontWeight: '700',
+    fontWeight: "700",
     color: palette.text,
     marginTop: 24,
   },
@@ -43,18 +43,23 @@ export const styles = StyleSheet.create({
     backgroundColor: palette.primary,
     borderRadius: 6,
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
     color: palette.text,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   link: {
     color: palette.link,
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
     paddingVertical: 14,
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
+  },
+  buttonOutline: {
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    borderColor: palette.primary,
   },
 });
