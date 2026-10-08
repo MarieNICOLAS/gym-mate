@@ -1,18 +1,21 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { palette } from '../constants/palette';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
-
-SplashScreen.preventAutoHideAsync();
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function RootLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <>
+      {/* Stack permet de naviguer entre les pages avec un bouton Retour. */}
+      <Stack screenOptions={{
+        headerStyle: { backgroundColor: palette.background },
+        headerTintColor: palette.text,
+        contentStyle: { backgroundColor: palette.background },
+      }}>
+        <Stack.Screen name="index" options={{ title: 'GymMate' }} />
+        <Stack.Screen name="auth/login" options={{ title: 'Connexion' }} />
+        <Stack.Screen name="auth/signup" options={{ title: 'Inscription' }} />
+      </Stack>
+      <StatusBar style="dark" />
+    </>
   );
 }
